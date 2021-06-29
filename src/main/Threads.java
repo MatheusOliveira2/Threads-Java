@@ -2,41 +2,47 @@ package main;
 
 public class Threads {
     public static void main(String[] args) {
-       Thread thread = new Thread(new LoadBar());
-       Thread thread2 = new Thread(new LoadBar2());
-       thread.start();
-       thread2.start();
+       GeneratePDF pdf = new GeneratePDF();
+       LoadBar lb = new LoadBar(pdf);
+       pdf.start();
+       lb.start();
     }
 }
 
-class GeneratePDF implements Runnable{
+class GeneratePDF extends Thread{
 
     @Override
     public void run() {
-        System.out.println("Generate PDF");
-    }
-}
-
-class LoadBar implements Runnable{
-    @Override
-    public void run(){
         try {
             Thread.sleep(5000);
+            System.out.println("Generate PDF");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("loading ....");
     }
 }
 
-class LoadBar2 implements Runnable{
+class LoadBar extends Thread{
+
+    private Thread generatePDF;
+
+    public LoadBar(Thread thread)    {
+        this.generatePDF = thread;
+    }
     @Override
     public void run(){
         try {
-            Thread.sleep(2000);
+            while (true){
+                Thread.sleep(500);
+                if (!this.generatePDF.isAlive()){
+                    break;
+                }else{
+                    System.out.println("loading...");
+                }
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("LoadBar...");
     }
 }
+
